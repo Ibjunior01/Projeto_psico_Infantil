@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  senha    String
+  tipo     String  // 'paciente', 'profissional', 'admin'
+  
+  paciente      Paciente?
+  profissional  Profissional?
+}
+
+model Paciente {
+  id               Int      @id @default(autoincrement())
+  usuarioId        Int      @unique
+  nome             String
+  dataNascimento   DateTime
+  principalQueixa  String?
+  historicoFamiliar String?
+  usoMedicamentos  String?
+  objetivoTerapia  String?
+
+  usuario          Usuario  @relation(fields: [usuarioId], references: [id])
+  evolucoes        EvolucaoClinica[]
+  atendimentos     Atendimento[]
+}
+
+model Profissional {
+  id                   Int      @id @default(autoincrement())
+  usuarioId            Int      @unique
+  nome                 String
+  especialidade        String   // Exemplo: "Psicólogo", "Psiquiatra", "Terapeuta"
+  localizacao          String
+  faixaEtaria          String
+  matriculaProfissional String  // Exemplo: CRM, CRP, COREN
+
+  usuario              Usuario  @relation(fields: [usuarioId], references: [id])
+  atendimentos         Atendimento[]
+}
+
+model EvolucaoClinica {
+  id               Int      @id @default(autoincrement())
+  pacienteId       Int
+  profissionalId   Int
+  data             DateTime @default(now())
+  relatoAtendimento String
+  ajustesNoTratamento String
+
+  paciente         Paciente  @relation(fields: [pacienteId], references: [id])
+  profissional     Profissional @relation(fields: [profissionalId], references: [id])
+}
+
+model Atendimento {
+  id               Int      @id @default(autoincrement())
+  pacienteId       Int
+  profissionalId   Int
+  dataHora         DateTime
+  status           String  // 'Agendado', 'Realizado', 'Cancelado'
+
+  paciente         Paciente  @relation(fields: [pacienteId], references: [id])
+  profissional     Profissional @relation(fields: [profissionalId], references: [id])
+}
