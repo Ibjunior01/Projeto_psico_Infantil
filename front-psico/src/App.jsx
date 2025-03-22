@@ -1,43 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import SpecialistsPage from "./pages/SpecialistsPage";
 import AboutmePage from "./pages/AboutmePage";
-import LoginPage from "./pages/LoginPage";
+import LoginPage2 from "./pages/LoginPage2";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import HorarioPage from "./pages/HorarioPage";
 import AdminPanel from "./pages/AdminPanel";
 import Footer from "./components/Footer";
 
 function App() {
-  const [userRole, setUserRole] = useState(null);
-  const [userName, setUserName] = useState('');
+  const [authToken, setAuthToken] = useState(localStorage.getItem("token"));
+  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail"));
 
-  const handleLogin = (role, name) => {
-    setUserRole(role);
-    setUserName(name);
+  // Função chamada no login, recebe o token e o email
+  const handleLogin = (token, email) => {
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("userEmail", email);
+    setAuthToken(token);
+    setUserEmail(email);
   };
 
   const handleLogout = () => {
-    setUserRole(null);
-    setUserName('');
-
     localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
+    localStorage.removeItem("userEmail");
+    setAuthToken(null);
+    setUserEmail('');
   };
 
   return (
     <Router>
       <div className="font-sans min-h-screen flex flex-col">
-    
-        {userRole && <Header userRole={userRole} userName={userName} onLogout={handleLogout} />}
+
+        {/* Header e Footer só aparecem se o usuário estiver autenticado */}
+        {authToken && <Header userEmail={userEmail} onLogout={handleLogout} />}
 
         <div className="flex-grow">
           <Routes>
-            {!userRole ? (
+            {!authToken ? (
               <>
-                <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+                <Route path="/" element={<LoginPage2 onLogin={handleLogin} />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </>
             ) : (
@@ -54,14 +57,10 @@ function App() {
           </Routes>
         </div>
 
-        {userRole && <Footer />}
+        {authToken && <Footer />}
       </div>
     </Router>
   );
 }
 
 export default App;
-
-
-
-
