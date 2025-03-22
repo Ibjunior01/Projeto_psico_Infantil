@@ -1,56 +1,76 @@
-const { getUsuarios, addUsuarioById, addUsuario, updatedUsuario, removeUsuario } = require('../models/usuarioModel');
-
+const usuarioModel = require('../models/usuarioModel'); // Importa o modelo correto
+const { getUsuarios, updateUsuario, removeUsuario } = require('../models/usuarioModel'); // Funções adicionais
 
 const getUsuariosHandler = async (req, res) => {
     try {
-      const usuarios = await getUsuarios();
-      res.json(usuarios);
+        const usuarios = await getUsuarios();
+        res.json(usuarios);
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar usuários' });
+        res.status(500).json({ error: 'Erro ao buscar usuários' });
     }
-  };
-  
-const addUsuarioHandler = async (req, res) => {
-    const { email, senha, tipo } = req.body;
+};
 
-    if (!email || !senha || !tipo) {
-      return res.status(400).json({ error: 'Todos os campos (email, senha, tipo) são obrigatórios' });
-    }
-  
+const addUsuarioHandler = async (req, res) => {
     try {
-      const newUsuario = await addUsuario({ email, senha, tipo });
-      res.status(201).json(newUsuario);
+        const { email, senha, tipo } = req.body;
+
+        // Validação simples de campos obrigatórios
+        if (!email || !senha || !tipo) {
+            return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+        }
+
+        console.log("Recebendo requisição para adicionar usuário:", req.body); // Debug
+
+        const usuario = await usuarioModel.addUsuario(email, senha, tipo);
+
+        console.log("Usuário adicionado com sucesso:", usuario); // Debug
+
+        res.status(201).json(usuario);
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao adicionar usuário' });
+        console.error("Erro ao adicionar usuário:", error); // Mostra erro no terminal
+
+        res.status(500).json({ error: "Erro ao adicionar usuário", details: error.message });
     }
-  };
-  
+};
+
 const updateUsuarioHandler = async (req, res) => {
     const { id } = req.params;
     const { email, senha, tipo } = req.body;
 
     try {
-      const updatedUsuario = await updateUsuario(id, { email, senha, tipo });
-      res.json(updatedUsuario);
+        const updatedUsuario = await updateUsuario(id, { email, senha, tipo });
+
+        // Verifica se o recurso foi encontrado
+        if (!updatedUsuario) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        res.json(updatedUsuario);
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao atualizar usuário' });
+        res.status(500).json({ error: 'Erro ao atualizar usuário', details: error.message });
     }
-  };
-  
+};
+
 const removeUsuarioHandler = async (req, res) => {
     const { id } = req.params;
 
     try {
-      await removeUsuario(id);
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao remover usuário' });
-    }
-  };
+        const removed = await removeUsuario(id);
 
-  module.exports = { 
-    getUsuariosHandler, 
-    addUsuarioHandler, 
-    updateUsuarioHandler, 
-    removeUsuarioHandler 
+        // Verifica se o recurso foi encontrado
+        if (!removed) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao remover usuário', details: error.message });
+    }
+};
+
+module.exports = {
+    getUsuariosHandler,
+    addUsuarioHandler,
+    updateUsuarioHandler,
+    removeUsuarioHandler
 };
