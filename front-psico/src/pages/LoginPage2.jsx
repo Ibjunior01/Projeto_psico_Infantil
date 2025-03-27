@@ -1,44 +1,47 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import autenticacao from "../services/autenticacao";
-import userUsuarios from "../services/Usuarios";
 
- 
-function Login() {
-  // Estado para guardar o email digitado
+function Login({ onLogin }) {
   const [email, setEmail] = useState("");
-
-  // Estado para guardar a senha digitada
   const [senha, setSenha] = useState("");
-
-  // Estado para mensagens de erro
   const [error, setError] = useState("");
-
-  // Hook para redirecionar o usuário após o login
   const navigate = useNavigate();
 
-  // Função chamada quando o formulário é enviado
   const handleLogin = async (e) => {
-    e.preventDefault(); // Evita recarregar a página
-    setError(""); // Limpa o erro anterior
+    e.preventDefault();
+    setError("");
 
     try {
-      // Envia o email e senha para o backend e salva o token no localStorage
-      await authService.login({ email, senha });
+      // Realiza login e salva token
+      await autenticacao.login({ email, senha });
 
-      // Após o login, busca o perfil do usuário
-      const response = await userService.getUserProfile();
-      const tipo = response.data.tipo; // TIPO1 = admin, TIPO2 = usuário comum
+      // Recupera o perfil do usuário autenticado
+      const perfil = await autenticacao.getUserProfile();
+      console.log("Perfil recebido:", perfil);
 
-      // Redireciona para a rota certa com base no tipo de usuário
-      if (tipo === "TIPO1") {
-        navigate("/admin"); // Usuário administrador
-      } else {
-        navigate("/todos"); // Usuário comum
-      }
+      const tipo = perfil?.tipo?.trim().toUpperCase();
+      console.log("Tipo de usuário normalizado:", tipo);
+
+      // Atualiza App com token e e-mail
+      onLogin(localStorage.getItem("authToken"), perfil.email, tipo);
+
+      // Delay leve para garantir que o App.jsx reaja à atualização
+      setTimeout(() => {
+        if (tipo === "TIPO1") {
+          console.log("Redirecionando para /admin");
+          navigate("/admin", { replace: true });
+        } else if (tipo === "PACIENTE" || tipo === "TIPO2") {
+          console.log("Redirecionando para /sobremimpaciente");
+          navigate("/sobremimpaciente", { replace: true });
+        } else {
+          console.log("Redirecionando para /sobremimprofissional");
+          navigate("/sobremimprofissional", { replace: true });
+        }
+      }, 100);
     } catch (error) {
       console.error("Erro ao logar:", error);
-      setError("Credenciais inválidas"); // Mostra mensagem de erro
+      setError("Credenciais inválidas");
     }
   };
 
@@ -70,7 +73,10 @@ function Login() {
               required
             />
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          >
             Entrar
           </button>
         </form>
@@ -80,11 +86,3 @@ function Login() {
 }
 
 export default Login;
-
-
-
-
-
-
-
-

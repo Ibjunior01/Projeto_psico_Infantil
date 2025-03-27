@@ -1,46 +1,63 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require("bcryptjs");
+
 const prisma = new PrismaClient();
 
+// Buscar todos os usuários
 const getUsuarios = async () => {
-    return await prisma.usuario.findMany();
+  return await prisma.usuario.findMany();
 };
 
+// Buscar um usuário pelo ID
 const getUsuarioById = async (id) => {
-    return await prisma.usuario.findUnique({
-        where: { id: Number(id) },
-    });
-};
-
-const findUserByEmail = async (email)  => {
-    return await  prisma.usuario.findUnique({ 
-         where: { email } 
+  return await prisma.usuario.findUnique({
+    where: { id: Number(id) },
   });
-  } 
+};
 
-const bcrypt = require("bcryptjs");
-const addUsuario = async (email, senha, tipo) => {
-    const senhaHash = await bcrypt.hash(senha, 10); // Criptografa a senha
-  
-    return await prisma.usuario.create({
-      data: {
-        email,
-        senha: senhaHash,
-        tipo,
-      },
-    });
-  };
+// Buscar usuário pelo e-mail (para login/validação)
+const findUserByEmail = async (email) => {
+  return await prisma.usuario.findUnique({
+    where: { email },
+  });
+};
 
+// Adicionar novo usuário (com senha criptografada)
+const addUsuario = async ({ email, senha, tipo }) => {
+  console.log("[addUsuario] Recebido:", email, senha, tipo); // debug opcional
+
+  const senhaHash = await bcrypt.hash(senha, 10);
+
+  return await prisma.usuario.create({
+    data: {
+      email,
+      senha: senhaHash,
+      tipo,
+    },
+  });
+};
+
+// Atualizar usuário existente
 const updateUsuario = async (id, data) => {
-    return await prisma.usuario.update({
-        where: { id: Number(id) },
-        data, // Atualiza qualquer campo enviado
-    });
+  return await prisma.usuario.update({
+    where: { id: Number(id) },
+    data,
+  });
 };
 
+// Remover usuário
 const removeUsuario = async (id) => {
-    return await prisma.usuario.delete({
-        where: { id: Number(id) },
-    });
+  return await prisma.usuario.delete({
+    where: { id: Number(id) },
+  });
 };
 
-module.exports = { getUsuarios, addUsuario, updateUsuario, removeUsuario, findUserByEmail };
+// Exporta tudo
+module.exports = {
+  getUsuarios,
+  getUsuarioById,
+  findUserByEmail,
+  addUsuario,
+  updateUsuario,
+  removeUsuario,
+};

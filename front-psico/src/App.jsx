@@ -1,23 +1,34 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import SpecialistsPage from "./pages/SpecialistsPage";
 import AboutmePage from "./pages/AboutmePage";
 import AboutProfissionalPage from "./pages/AboutProfissionalPage";
-import LoginPage from "./pages/LoginPage"; // Alterado para LoginPage2
+import LoginPage from "./pages/LoginPage2"; // Alterado para LoginPage2
 import SignupPage from "./pages/SignupPage"; 
 import AppointmentsPage from "./pages/AppointmentsPage";
 import HorarioPage from "./pages/HorarioPage";
 import AdminPanel from "./pages/AdminPanel";
 import EvolucaoClinicaPage from "./pages/EvolucaoClinicaPage";
 import Footer from "./components/Footer";
+import CadastroUsuario from "./pages/SignupPage";
 
 function App() {
-  const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
-  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail"));
+  const [authToken, setAuthToken] = useState(null);
+  const [userEmail, setUserEmail] = useState("");
 
-  // Função chamada no login, recebe o token e o email
+  // Atualiza o token e email ao carregar o app
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const email = localStorage.getItem("userEmail");
+
+    if (token) {
+      setAuthToken(token);
+      setUserEmail(email);
+    }
+  }, []);
+
   const handleLogin = (token, email) => {
     localStorage.setItem("authToken", token);
     localStorage.setItem("userEmail", email);
@@ -29,14 +40,12 @@ function App() {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userEmail");
     setAuthToken(null);
-    setUserEmail('');
+    setUserEmail("");
   };
 
   return (
     <Router>
       <div className="font-sans min-h-screen flex flex-col">
-
-        {/* Header e Footer só aparecem se o usuário estiver autenticado */}
         {authToken && <Header userEmail={userEmail} onLogout={handleLogout} />}
 
         <div className="flex-grow">
@@ -44,7 +53,7 @@ function App() {
             {!authToken ? (
               <>
                 <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-                <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} /> {/* Rota de cadastro */}
+                <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </>
             ) : (

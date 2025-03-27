@@ -1,3 +1,6 @@
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
 const UserModel = require("../models/usuarioModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -14,9 +17,10 @@ const register = async (req, res) => {
     const userExists = await UserModel.findUserByEmail(email);
     if (userExists) return res.status(400).json({ error: "Email já cadastrado" });
 
-    await UserModel.createUser({ email, senha, tipo });
+    await UserModel.addUsuario({ email, senha, tipo });
     res.status(201).json({ message: "Usuário cadastrado com sucesso" });
   } catch (error) {
+    console.error("Erro real ao registrar usuário:", error);
     res.status(500).json({ error: "Erro ao registrar usuário" });
   }
 };
@@ -38,10 +42,34 @@ const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.json({ token });
+    res.json({ token, tipo: user.tipo });
   } catch (error) {
     res.status(500).json({ error: "Erro ao fazer login" });
   }
 };
 
-module.exports = { register, login };
+const profile = async (req, res) => {
+  try {
+    const user = await prisma.usuario.findUnique({
+      where: { id: req.user.userId }, 
+      select: {
+        id: true,
+        email: true,
+        tipo: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Erro ao buscar perfil:", error);
+    res.status(500).json({ error: "Erro ao buscar perfil" });
+  }
+};
+
+
+
+module.exports = { register, login, profile };

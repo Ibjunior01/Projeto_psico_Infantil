@@ -43,4 +43,10 @@ const getUserType = () => {
   return localStorage.getItem("tipo");
 };
 
-export default { register, login, logout, getUserType };
+const getUserProfile = async () => {
+  const response = await api.get("/auth/profile");
+  return response.data; 
+};
+
+
+export default { register, login, logout, getUserType, getUserProfile };

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import userService from '../services/userService';
-
+import autenticacao from '../services/autenticacao';
 
 function CadastroUsuario() {
   const [formData, setFormData] = useState({
@@ -9,6 +8,7 @@ function CadastroUsuario() {
     senha: '',
     tipo: 'PACIENTE'
   });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,59 +18,36 @@ function CadastroUsuario() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validação básica no front
-    if (!formData.email || !formData.senha || !formData.nome || !formData.tipo) {
+
+    if (!formData.email || !formData.senha || !formData.tipo) {
       alert("Todos os campos são obrigatórios");
       return;
     }
-  
-    // Validação de email simples
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       alert("Por favor, insira um email válido");
       return;
     }
-  
-    // Validação de senha (mínimo 6 caracteres)
+
     if (formData.senha.length < 6) {
       alert("A senha deve ter pelo menos 6 caracteres");
       return;
     }
-  
+
     try {
-      // Exibe os dados que serão enviados para debug
       console.log("Enviando dados:", formData);
-      
-      const { data } = await userService({
+
+      await autenticacao.register({
         email: formData.email.trim(),
         senha: formData.senha,
         tipo: formData.tipo
       });
-  
-      console.log("Resposta do servidor:", data);
-      
-      // Redireciona conforme o tipo de usuário
-      if (formData.tipo === 'PACIENTE') {
-        navigate(`/sobremimpaciente/${data.perfilId}`, { 
-          state: { 
-            usuarioId: data.usuarioId,
-            email: formData.email,
-          } 
-        });
-      } else {
-        navigate(`/sobremimprofissional/${data.perfilId}`, { 
-          state: { 
-            usuarioId: data.usuarioId,
-            email: formData.email,
-          } 
-        });
-      }
 
-    
+      alert("Cadastro realizado com sucesso!");
+      navigate("/"); // Volta pro login
     } catch (error) {
       console.error("Erro completo:", error);
-      
-      
+
       if (error.response) {
         if (error.response.status === 400) {
           alert(error.response.data.error || "Dados inválidos");
@@ -84,7 +61,7 @@ function CadastroUsuario() {
       } else {
         alert("Erro ao processar a requisição");
       }
-    } 
+    }
   };
 
   return (
@@ -120,20 +97,6 @@ function CadastroUsuario() {
           </div>
         </div>
 
-    
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
-          <input
-            type="text"
-            name="nome"
-            value={formData.nome}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            required
-          />
-        </div>
-
-       
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
@@ -146,7 +109,6 @@ function CadastroUsuario() {
           />
         </div>
 
-        
         <div>
           <label className="block text-sm font-medium text-gray-700">Senha</label>
           <input
@@ -172,5 +134,3 @@ function CadastroUsuario() {
 }
 
 export default CadastroUsuario;
-
-
