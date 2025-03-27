@@ -1,98 +1,65 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-function ProfissionaisPage() {
-  const [profissionais, setProfissionais] = useState([]);
-  const [selectedProfissional, setSelectedProfissional] = useState(null);
-  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
-  const [horarioSelecionado, setHorarioSelecionado] = useState("");
+const specialists = [
+  {
+    id: 1,
+    name: "Dr. João Silva",
+    specialty: "Psicologia Clínica",
+    image: "https://via.placeholder.com/150",
+    bio: "Especialista em terapia cognitivo-comportamental com mais de 10 anos de experiência."
+  },
+  {
+    id: 2,
+    name: "Dra. Maria Souza",
+    specialty: "Psicanálise",
+    image: "https://via.placeholder.com/150",
+    bio: "Atendimento focado em transtornos de ansiedade e depressão."
+  }
+];
 
-  useEffect(() => {
-    setProfissionais([
-      { id: 1, nome: "Dr. João Silva", especialidade: "Psicólogo" },
-      { id: 2, nome: "Dra. Ana Costa", especialidade: "Terapeuta" },
-      { id: 3, nome: "Dr. Carlos Oliveira", especialidade: "Psiquiatra" },
-    ]);
-  }, []);
-
-  const abrirModal = (profissional) => {
-    setSelectedProfissional(profissional);
-    setHorariosDisponiveis(["09:00", "10:00", "14:00", "16:00"]);
-  };
-
-  const fecharModal = () => {
-    setSelectedProfissional(null);
-    setHorarioSelecionado("");
-  };
-
-  const confirmarAgendamento = () => {
-    if (!horarioSelecionado) {
-      alert("Por favor, selecione um horário.");
-      return;
-    }
-
-   
-    console.log("Agendamento confirmado para:", selectedProfissional.nome, "às", horarioSelecionado);
-
-    alert(`Consulta com ${selectedProfissional.nome} confirmada para ${horarioSelecionado}`);
-    fecharModal();
-  };
+function SpecialistsPage() {
+  const [selectedSpecialist, setSelectedSpecialist] = useState(null);
 
   return (
     <div className="p-6">
-      <h1 className="text-blue-800 text-4xl font-bold mb-8">Profissionais Disponíveis</h1>
-      <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-blue-800 text-white">
-          <tr>
-            <th className="p-3 text-left">Nome</th>
-            <th className="p-3 text-left">Especialidade</th>
-            <th className="p-3 text-left">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {profissionais.map((profissional) => (
-            <tr key={profissional.id} className="border-b hover:bg-gray-100">
-              <td className="p-3">{profissional.nome}</td>
-              <td className="p-3">{profissional.especialidade}</td>
-              <td className="p-3">
-                <button
-                  className="bg-blue-600 text-white px-3 py-1 rounded"
-                  onClick={() => abrirModal(profissional)}
-                >
-                  Ver Disponibilidade
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-     
-      {selectedProfissional && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-blue-800 text-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-2xl font-bold text-blue-800 mb-4">
-              Agendar consulta com {selectedProfissional.nome}
-            </h2>
-            <p className="mb-2">Selecione um horário:</p>
-            <div className="flex flex-wrap gap-2">
-              {horariosDisponiveis.map((horario, index) => (
-                <button
-                  key={index}
-                  className={`px-3 py-1 rounded ${horarioSelecionado === horario ? "bg-blue-600 text-white" : "bg-gray-300 text-black"}`}
-                  onClick={() => setHorarioSelecionado(horario)}
-                >
-                  {horario}
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <button className="bg-gray-500 text-white px-4 py-2 rounded" onClick={fecharModal}>
-                Cancelar
-              </button>
-              <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={confirmarAgendamento}>
-                Confirmar
-              </button>
-            </div>
+      <h1 className="text-3xl font-bold mb-6 text-blue-700">Nossos Especialistas</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {specialists.map((specialist) => (
+          <div key={specialist.id} className="bg-white shadow-md rounded-lg p-4 text-center">
+            <img
+              src={specialist.image}
+              alt={specialist.name}
+              className="w-32 h-32 rounded-full mx-auto mb-4"
+            />
+            <h2 className="text-xl font-semibold text-gray-800">{specialist.name}</h2>
+            <p className="text-gray-600">{specialist.specialty}</p>
+            <button 
+              onClick={() => setSelectedSpecialist(specialist)}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Ver Perfil
+            </button>
+          </div>
+        ))}
+      </div>
+      
+      {selectedSpecialist && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm relative">
+            <button
+              onClick={() => setSelectedSpecialist(null)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              ✖
+            </button>
+            <img
+              src={selectedSpecialist.image}
+              alt={selectedSpecialist.name}
+              className="w-24 h-24 rounded-full mx-auto mb-4"
+            />
+            <h2 className="text-2xl font-bold text-gray-800 text-center">{selectedSpecialist.name}</h2>
+            <p className="text-gray-600 text-center">{selectedSpecialist.specialty}</p>
+            <p className="text-gray-700 mt-4 text-center">{selectedSpecialist.bio}</p>
           </div>
         </div>
       )}
