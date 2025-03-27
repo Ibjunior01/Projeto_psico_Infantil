@@ -1,28 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function HorarioPage() {
   const [dias, setDias] = useState([]);
   const [horarios, setHorarios] = useState({});
+  
+  useEffect(() => {
+    fetch("/api/atendimentos") // Ajuste para sua API real
+      .then((res) => res.json())
+      .then((data) => {
+        const diasFormatados = {};
+        data.forEach((atendimento) => {
+          const dia = atendimento.dataHora.split("T")[0];
+          if (!diasFormatados[dia]) {
+            diasFormatados[dia] = [];
+          }
+          diasFormatados[dia].push(atendimento.dataHora.split("T")[1]);
+        });
+        setDias(Object.keys(diasFormatados));
+        setHorarios(diasFormatados);
+      });
+  }, []);
 
   const adicionarDia = () => {
     const novoDia = new Date().toISOString().split("T")[0];
-    setDias([...dias, novoDia]);
-    setHorarios({ ...horarios, [novoDia]: [] });
-  };
-
-  const alterarDia = (index, valor) => {
-    const novosDias = [...dias];
-    const antigoDia = novosDias[index];
-    novosDias[index] = valor;
-
-    const novosHorarios = { ...horarios };
-    if (antigoDia in novosHorarios) {
-      novosHorarios[valor] = novosHorarios[antigoDia];
-      delete novosHorarios[antigoDia];
+    if (!dias.includes(novoDia)) {
+      setDias([...dias, novoDia]);
+      setHorarios({ ...horarios, [novoDia]: [] });
     }
-
-    setDias(novosDias);
-    setHorarios(novosHorarios);
   };
 
   const adicionarHorario = (dia) => {
@@ -35,27 +39,30 @@ function HorarioPage() {
     setHorarios(novosHorarios);
   };
 
+  const salvarHorarios = () => {
+    const atendimentos = dias.flatMap((dia) =>
+      (horarios[dia] || []).map((hora) => ({
+        pacienteId: 1, // Essa parte precisa ajustar
+        profissionalId: 1, //Precisa ajustar
+        dataHora: `${dia}T${hora}`,
+        status: "Agendado",
+      }))
+    );
+    
+    fetch("/api/atendimentos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(atendimentos),
+    });
+  };
+
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold text-blue-800">Semanais</h1>
+      <h1 className="text-xl font-bold text-blue-800">Horários Disponíveis</h1>
       <div className="bg-blue-900 p-6 text-white rounded-lg">
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-bold">Dias disponíveis</h3>
-            {dias.map((dia, index) => (
-              <input
-                key={index}
-                type="date"
-                value={dia}
-                onChange={(e) => alterarDia(index, e.target.value)}
-                className="block mt-2 p-2 text-black rounded-md"
-              />
-            ))}
-            <button onClick={adicionarDia} className="mt-2 p-2 bg-indigo-600 text-white rounded-md">Adicionar Dia</button>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold">Horários disponíveis</h3>
+            <h3 className="text-lg font-bold">Dias</h3>
             {dias.map((dia, index) => (
               <div key={index} className="mt-2">
                 <span>{dia}</span>
@@ -70,15 +77,24 @@ function HorarioPage() {
                     />
                   ))}
                 </div>
-                <button onClick={() => adicionarHorario(dia)} className="mt-2 p-2 bg-indigo-600 text-white rounded-md">Adicionar Horário</button>
+                <button
+                  onClick={() => adicionarHorario(dia)}
+                  className="mt-2 p-2 bg-indigo-600 text-white rounded-md"
+                >
+                  + Adicionar Horário
+                </button>
               </div>
             ))}
+            <button onClick={adicionarDia} className="mt-4 p-2 bg-green-600 text-white rounded-md">
+              + Adicionar Dia
+            </button>
           </div>
         </div>
       </div>
       <div className="flex gap-4 mt-4">
-        <button className="p-2 bg-gray-600 text-white rounded-md">Editar</button>
-        <button className="p-2 bg-green-600 text-white rounded-md">Salvar</button>
+        <button onClick={salvarHorarios} className="p-2 bg-green-600 text-white rounded-md">
+          Salvar
+        </button>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ const getUsuarios = async () => {
 // Função para adicionar um novo usuário
 const addUsuario = async (usuarioData) => {
   try {
-    const response = await api.post('/users', usuarioData); // Substitua '/users' pelo endpoint correto
+    const response = await api.post('/usuarios', usuarioData); // Substitua '/users' pelo endpoint correto
     return response.data;
   } catch (error) {
     console.error('Erro ao adicionar usuário:', error);
@@ -25,7 +25,7 @@ const addUsuario = async (usuarioData) => {
 // Função para atualizar um usuário existente
 const updateUsuario = async (id, usuarioData) => {
   try {
-    const response = await api.put(`/users/${id}`, usuarioData); // Substitua '/users' pelo endpoint correto
+    const response = await api.put(`/usuarios/${id}`, usuarioData); // Substitua '/users' pelo endpoint correto
     return response.data;
   } catch (error) {
     console.error('Erro ao atualizar usuário:', error);
@@ -43,9 +43,11 @@ const removeUsuario = async (id) => {
   }
 };
 
-export default {
+const userService = {
   getUsuarios,
   addUsuario,
   updateUsuario,
   removeUsuario,
 };
+
+export default userService;

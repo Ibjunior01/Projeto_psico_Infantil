@@ -1,46 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import autenticacao from "../services/autenticacao";
-import userUsuarios from "../services/userUsuarios";
+import userUsuarios from "../services/Usuarios";
 
  
 function Login() {
-    // Estado para guardar o email digitado
-    const [email, setEmail] = useState("");
-  
-    // Estado para guardar a senha digitada
-    const [senha, setSenha] = useState("");
-  
-    // Estado para mensagens de erro
-    const [error, setError] = useState("");
-  
-    // Hook para redirecionar o usuário após o login
-    const navigate = useNavigate();
-  
-    // Função chamada quando o formulário é enviado
-    const handleLogin = async (e) => {
-      e.preventDefault(); // Evita recarregar a página
-      setError(""); // Limpa o erro anterior
-  
-      try {
-        // Envia o email e senha para o backend e salva o token no localStorage
-        await autenticacao.login({ email, senha });
-  
-        // Após o login, busca o perfil do usuário
-        const response = await userUsuarios.getUsuarios();
-        console.log(response);
-        //const tipo = response.data.tipo; // TIPO1 = admin, TIPO2 = usuário comum
-  
-        // Redireciona para a rota certa com base no tipo de usuário
-        
-          navigate("/home"); // Usuário comum
-          console.log("Qualquer coisa");
-        
-      } catch (error) {
-        console.error("Erro ao logar:", error);
-        setError("Credenciais inválidas"); // Mostra mensagem de erro
+  // Estado para guardar o email digitado
+  const [email, setEmail] = useState("");
+
+  // Estado para guardar a senha digitada
+  const [senha, setSenha] = useState("");
+
+  // Estado para mensagens de erro
+  const [error, setError] = useState("");
+
+  // Hook para redirecionar o usuário após o login
+  const navigate = useNavigate();
+
+  // Função chamada quando o formulário é enviado
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Evita recarregar a página
+    setError(""); // Limpa o erro anterior
+
+    try {
+      // Envia o email e senha para o backend e salva o token no localStorage
+      await authService.login({ email, senha });
+
+      // Após o login, busca o perfil do usuário
+      const response = await userService.getUserProfile();
+      const tipo = response.data.tipo; // TIPO1 = admin, TIPO2 = usuário comum
+
+      // Redireciona para a rota certa com base no tipo de usuário
+      if (tipo === "TIPO1") {
+        navigate("/admin"); // Usuário administrador
+      } else {
+        navigate("/todos"); // Usuário comum
       }
-    };
+    } catch (error) {
+      console.error("Erro ao logar:", error);
+      setError("Credenciais inválidas"); // Mostra mensagem de erro
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-blue-400 to-blue-700">
@@ -80,6 +80,10 @@ function Login() {
 }
 
 export default Login;
+
+
+
+
 
 
 

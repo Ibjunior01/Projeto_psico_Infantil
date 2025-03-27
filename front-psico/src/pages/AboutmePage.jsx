@@ -1,12 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function AboutmePage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Dados do usuário passados via state (como o email do cadastro anterior)
+  const { email } = location.state || {};
+
   const [clientData, setClientData] = useState({
-    name: "João Silva",
-    email: "joao.silva@email.com",
-    phone: "123-456-7890",
-    address: "Rua das Flores, 123",
-    message: "", 
+    nome: "", 
+    email: email || "",     // Email já cadastrado
+    dataNascimento: "",
+    principalQueixa: "",
+    historicoFamiliar: "",
+    usoMedicamentos: "",
+    objetivoTerapia: ""
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -21,7 +30,9 @@ function AboutmePage() {
 
   const handleSave = () => {
     console.log("Dados salvos: ", clientData);
+    // Tem que incluir a lógica de salvar
     setIsEditing(false);
+    // Coloca para onde tem que redirecionar
   };
 
   return (
@@ -30,80 +41,114 @@ function AboutmePage() {
         <h2 className="text-2xl font-bold mb-4">Perfil do Cliente</h2>
 
         <form>
+         
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Nome</label>
             {isEditing ? (
               <input
                 type="text"
-                name="name"
-                value={clientData.name}
+                name="nome"
+                value={clientData.nome}
                 onChange={handleChange}
                 className="w-full mt-1 p-2 border border-gray-300 rounded"
               />
             ) : (
-              <p className="text-gray-700">{clientData.name}</p>
+              <p className="text-gray-700">{clientData.nome}</p>
             )}
           </div>
 
+         
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">E-mail</label>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={clientData.email}
+              readOnly
+              className="w-full mt-1 p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+         
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Data de Nascimento</label>
             {isEditing ? (
               <input
-                type="email"
-                name="email"
-                value={clientData.email}
+                type="date"
+                name="dataNascimento"
+                value={clientData.dataNascimento}
                 onChange={handleChange}
                 className="w-full mt-1 p-2 border border-gray-300 rounded"
               />
             ) : (
-              <p className="text-gray-700">{clientData.email}</p>
+              <p className="text-gray-700">{clientData.dataNascimento}</p>
             )}
           </div>
 
+          
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Telefone</label>
+            <label className="block text-sm font-medium text-gray-700">Principal Queixa</label>
             {isEditing ? (
               <input
                 type="text"
-                name="phone"
-                value={clientData.phone}
+                name="principalQueixa"
+                value={clientData.principalQueixa}
                 onChange={handleChange}
                 className="w-full mt-1 p-2 border border-gray-300 rounded"
               />
             ) : (
-              <p className="text-gray-700">{clientData.phone}</p>
+              <p className="text-gray-700">{clientData.principalQueixa}</p>
             )}
           </div>
 
+          
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Endereço</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="address"
-                value={clientData.address}
-                onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-300 rounded"
-              />
-            ) : (
-              <p className="text-gray-700">{clientData.address}</p>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Mensagem</label>
+            <label className="block text-sm font-medium text-gray-700">Histórico Familiar</label>
             {isEditing ? (
               <textarea
-                name="message"
-                value={clientData.message}
+                name="historicoFamiliar"
+                value={clientData.historicoFamiliar}
                 onChange={handleChange}
                 className="w-full mt-1 p-2 border border-gray-300 rounded h-24"
               />
             ) : (
-              <p className="text-gray-700">{clientData.message || "Nenhuma mensagem adicionada."}</p>
+              <p className="text-gray-700">{clientData.historicoFamiliar || "Nenhum histórico informado."}</p>
             )}
           </div>
 
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Uso de Medicamentos</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="usoMedicamentos"
+                value={clientData.usoMedicamentos}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              />
+            ) : (
+              <p className="text-gray-700">{clientData.usoMedicamentos || "Nenhum medicamento informado."}</p>
+            )}
+          </div>
+
+          {/* Objetivo da Terapia */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Objetivo da Terapia</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="objetivoTerapia"
+                value={clientData.objetivoTerapia}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              />
+            ) : (
+              <p className="text-gray-700">{clientData.objetivoTerapia || "Nenhum objetivo informado."}</p>
+            )}
+          </div>
+
+          {/* Botões de edição e salvar */}
           <div className="flex justify-between items-center">
             {isEditing ? (
               <button

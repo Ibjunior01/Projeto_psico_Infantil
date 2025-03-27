@@ -4,14 +4,17 @@ import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import SpecialistsPage from "./pages/SpecialistsPage";
 import AboutmePage from "./pages/AboutmePage";
-import LoginPage2 from "./pages/LoginPage2";
+import AboutProfissionalPage from "./pages/AboutProfissionalPage";
+import LoginPage from "./pages/LoginPage"; // Alterado para LoginPage2
+import SignupPage from "./pages/SignupPage"; 
 import AppointmentsPage from "./pages/AppointmentsPage";
 import HorarioPage from "./pages/HorarioPage";
 import AdminPanel from "./pages/AdminPanel";
+import EvolucaoClinicaPage from "./pages/EvolucaoClinicaPage";
 import Footer from "./components/Footer";
 
 function App() {
-  const [authToken, setAuthToken] = useState(localStorage.getItem("token"));
+  const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail"));
 
   // Função chamada no login, recebe o token e o email
@@ -40,7 +43,8 @@ function App() {
           <Routes>
             {!authToken ? (
               <>
-                <Route path="/" element={<LoginPage2 onLogin={handleLogin} />} />
+                <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+                <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} /> {/* Rota de cadastro */}
                 <Route path="*" element={<Navigate to="/" />} />
               </>
             ) : (
@@ -48,10 +52,12 @@ function App() {
                 <Route path="/" element={<Navigate to="/home" />} />
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/atendentes" element={<SpecialistsPage />} />
-                <Route path="/sobremim" element={<AboutmePage />} />
+                <Route path="/sobremimpaciente" element={<AboutmePage />} />
+                <Route path="/sobremimprofissional" element={<AboutProfissionalPage />} />
                 <Route path="/agenda" element={<AppointmentsPage />} />
                 <Route path="/horario" element={<HorarioPage />} />
                 <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/evolucao" element={<EvolucaoClinicaPage />} />
               </>
             )}
           </Routes>
